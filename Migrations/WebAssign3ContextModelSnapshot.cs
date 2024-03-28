@@ -27,13 +27,13 @@ namespace Assign03.Migrations
                     b.Property<int>("CartId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasColumnName("cart_id");
+                        .HasColumnName("cartId");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartId"));
 
                     b.Property<int?>("ProductId")
                         .HasColumnType("int")
-                        .HasColumnName("product_id");
+                        .HasColumnName("productId");
 
                     b.Property<int?>("Quantity")
                         .HasColumnType("int")
@@ -41,7 +41,7 @@ namespace Assign03.Migrations
 
                     b.Property<int?>("UserId")
                         .HasColumnType("int")
-                        .HasColumnName("user_id");
+                        .HasColumnName("userId");
 
                     b.HasKey("CartId")
                         .HasName("PK__Cart__2EF52A2719BBE645");

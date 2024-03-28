@@ -15,15 +15,15 @@ namespace Assign03.Migrations
                 name: "Cart",
                 columns: table => new
                 {
-                    cart_id = table.Column<int>(type: "int", nullable: false)
+                    cartId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    product_id = table.Column<int>(type: "int", nullable: true),
+                    productId = table.Column<int>(type: "int", nullable: true),
                     quantity = table.Column<int>(type: "int", nullable: true),
-                    user_id = table.Column<int>(type: "int", nullable: true)
+                    userId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK__Cart__2EF52A2719BBE645", x => x.cart_id);
+                    table.PrimaryKey("PK__Cart__2EF52A2719BBE645", x => x.cartId);
                 });
 
             migrationBuilder.CreateTable(

@@ -22,14 +22,8 @@ namespace Assign03.Controllers
         }
 
         // GET: Carts
-        /*public async Task<IActionResult> Index()
-        {
-            return View(await _context.Carts.ToListAsync());
-        }*/
-
-        // GET: Carts
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cart>>> Index()
+        public async Task<ActionResult<IEnumerable<Cart>>> GetAllItemsFromCart()
         {
             return await _context.Carts.ToListAsync();
         }
@@ -37,7 +31,7 @@ namespace Assign03.Controllers
 
         // GET: Carts/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Cart>> Index(int? id)
+        public async Task<ActionResult<Cart>> GetItemFromCartById(int? id)
         {
             var cart = await _context.Carts.FindAsync(id);
 
@@ -49,129 +43,70 @@ namespace Assign03.Controllers
             return cart;
         }
 
-        // GET: Carts/5
-        //[HttpGet("{id}")]
-        public async Task<ActionResult<Cart>> Index(int id)
+        // POST: Carts/
+        [HttpPost]
+        public async Task<ActionResult<Cart>> AddItemInCart(Cart cart)
         {
-            var cart = await _context.Carts.FindAsync(id);
-
-            if (cart == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                return BadRequest(ModelState);
             }
 
-            return cart;
+            _context.Carts.Add(cart);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetItemFromCartById), new { id = cart.CartId }, new { status = 201, message = "Cart saved successfully" });
         }
 
-        /*// GET: Carts/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
 
-        // POST: Carts/Create
+        // PUT: Carts/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CartId,ProductId,Quantity,UserId")] Cart cart)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(cart);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(cart);
-        }
-
-        // GET: Carts/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var cart = await _context.Carts.FindAsync(id);
-            if (cart == null)
-            {
-                return NotFound();
-            }
-            return View(cart);
-        }
-
-        // POST: Carts/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CartId,ProductId,Quantity,UserId")] Cart cart)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditCartById(int id, [Bind("CartId,ProductId,Quantity,UserId")] Cart cart)
         {
             if (id != cart.CartId)
             {
-                return NotFound();
+                return BadRequest(new { status = 400, message = "Cart ID mismatch" });
             }
 
             if (ModelState.IsValid)
             {
-                try
+                if (!CartExists(cart.CartId))
                 {
-                    _context.Update(cart);
-                    await _context.SaveChangesAsync();
+                    return NotFound(new { status = 404, message = "Item in Cart Not Found" });
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CartExists(cart.CartId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                _context.Update(cart);
+                await _context.SaveChangesAsync();
             }
-            return View(cart);
+            return Ok(new { status = 200, message = "Item in Cart updated successfully" }); ;
         }
 
-        // GET: Carts/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+
+        // DELETE: Carts/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteItemFromCartById(int id)
         {
-            if (id == null)
+
+            if (!CartExists(id))
             {
-                return NotFound();
+                return NotFound(new { status = 404, message = "Item in Cart Not Found" });
             }
-
-            var cart = await _context.Carts
-                .FirstOrDefaultAsync(m => m.CartId == id);
-            if (cart == null)
-            {
-                return NotFound();
-            }
-
-            return View(cart);
-        }
-
-        // POST: Carts/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
             var cart = await _context.Carts.FindAsync(id);
+            
             if (cart != null)
             {
                 _context.Carts.Remove(cart);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return Ok(new { status = 200, message = "Item in Cart deleted successfully" }); ;
         }
 
         private bool CartExists(int id)
         {
             return _context.Carts.Any(e => e.CartId == id);
-        }*/
+        }
+
     }
 }
