@@ -9,7 +9,9 @@ using Assign03.Data;
 
 namespace Assign03.Controllers
 {
-    public class OrdersController : Controller
+    [Route("[controller]")]
+    [ApiController]
+    public class OrdersController : ControllerBase
     {
         private readonly WebAssign3Context _context;
 
@@ -19,134 +21,87 @@ namespace Assign03.Controllers
         }
 
         // GET: Orders
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Order>>> GetAllItemsFromOrder()
         {
-            return View(await _context.Orders.ToListAsync());
+            return await _context.Orders.ToListAsync();
         }
 
-        // GET: Orders/Details/5
-        public async Task<IActionResult> Details(int? id)
+
+        // GET: Orders/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Order>> GetItemFromOrderById(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var order = await _context.Orders
-                .FirstOrDefaultAsync(m => m.OrderId == id);
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            return View(order);
-        }
-
-        // GET: Orders/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Orders/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderId,UserId,ProductId,Quantity,OrderDate")] Order order)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(order);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(order);
-        }
-
-        // GET: Orders/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var order = await _context.Orders.FindAsync(id);
+
             if (order == null)
             {
                 return NotFound();
             }
-            return View(order);
+
+            return order;
         }
 
-        // POST: Orders/Edit/5
+        // POST: Orders/
+        [HttpPost]
+        public async Task<ActionResult<Order>> AddItemInOrder(Order order)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetItemFromOrderById), new { id = order.OrderId }, new { status = 201, message = "Order saved successfully" });
+        }
+
+
+        // PUT: Orders/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("OrderId,UserId,ProductId,Quantity,OrderDate")] Order order)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditOrderById(int id, [Bind("OrderId,UserId,ProductId,Quantity,OrderDate")] Order order)
         {
             if (id != order.OrderId)
             {
-                return NotFound();
+                return BadRequest(new { status = 400, message = "Order ID mismatch" });
             }
 
             if (ModelState.IsValid)
             {
-                try
+                if (!OrderExists(order.OrderId))
                 {
-                    _context.Update(order);
-                    await _context.SaveChangesAsync();
+                    return NotFound(new { status = 404, message = "Item in Order Not Found" });
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!OrderExists(order.OrderId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                _context.Update(order);
+                await _context.SaveChangesAsync();
             }
-            return View(order);
+            return Ok(new { status = 200, message = "Item in Order updated successfully" }); ;
         }
 
-        // GET: Orders/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+
+        // DELETE: Orders/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteItemFromOrderById(int id)
         {
-            if (id == null)
+
+            if (!OrderExists(id))
             {
-                return NotFound();
+                return NotFound(new { status = 404, message = "Item in Order Not Found" });
             }
-
-            var order = await _context.Orders
-                .FirstOrDefaultAsync(m => m.OrderId == id);
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            return View(order);
-        }
-
-        // POST: Orders/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
             var order = await _context.Orders.FindAsync(id);
+
             if (order != null)
             {
                 _context.Orders.Remove(order);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return Ok(new { status = 200, message = "Item in Order deleted successfully" }); ;
         }
+
 
         private bool OrderExists(int id)
         {
