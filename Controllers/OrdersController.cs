@@ -27,18 +27,15 @@ namespace Assign03.Controllers
             return await _context.Orders.ToListAsync();
         }
 
-
         // GET: Orders/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Order>> GetItemFromOrderById(int? id)
         {
             var order = await _context.Orders.FindAsync(id);
-
             if (order == null)
             {
                 return NotFound();
             }
-
             return order;
         }
 
@@ -50,10 +47,8 @@ namespace Assign03.Controllers
             {
                 return BadRequest(ModelState);
             }
-
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
-
             return CreatedAtAction(nameof(GetItemFromOrderById), new { id = order.OrderId }, new { status = 201, message = "Order saved successfully" });
         }
 
@@ -68,7 +63,6 @@ namespace Assign03.Controllers
             {
                 return BadRequest(new { status = 400, message = "Order ID mismatch" });
             }
-
             if (ModelState.IsValid)
             {
                 if (!OrderExists(order.OrderId))

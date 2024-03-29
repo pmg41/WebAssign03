@@ -27,7 +27,6 @@ namespace Assign03.Controllers
             return await _context.Users.ToListAsync();
         }
 
-
         // GET: Users/5
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUserById(int? id)

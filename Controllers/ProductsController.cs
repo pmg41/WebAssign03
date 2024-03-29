@@ -9,7 +9,9 @@ using Assign03.Data;
 
 namespace Assign03.Controllers
 {
-    public class ProductsController : Controller
+    [Route("[controller]")]
+    [ApiController]
+    public class ProductsController : ControllerBase
     {
         private readonly WebAssign3Context _context;
 
@@ -19,133 +21,77 @@ namespace Assign03.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Product>>> GetAllProducts()
         {
-            return View(await _context.Products.ToListAsync());
+            return await _context.Products.ToListAsync();
         }
 
-        // GET: Products/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: Products/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Product>> GetProductById(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var product = await _context.Products
-                .FirstOrDefaultAsync(m => m.ProductId == id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            return View(product);
-        }
-
-        // GET: Products/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Products/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,Description,Image,Pricing,ShippingCost")] Product product)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(product);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(product);
-        }
-
-        // GET: Products/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var product = await _context.Products.FindAsync(id);
             if (product == null)
             {
                 return NotFound();
             }
-            return View(product);
+            return product;
         }
 
-        // POST: Products/Edit/5
+        // POST: Products/
+        [HttpPost]
+        public async Task<ActionResult<Product>> AddProduct(Product product)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetProductById), new { id = product.ProductId }, new { status = 201, message = "Product saved successfully" });
+        }
+
+
+        // PUT: Products/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductId,Description,Image,Pricing,ShippingCost")] Product product)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditProductById(int id, [Bind("ProductId,Description,Image,Pricing,ShippingCost")] Product product)
         {
             if (id != product.ProductId)
             {
-                return NotFound();
+                return BadRequest(new { status = 400, message = "Product ID mismatch" });
             }
-
             if (ModelState.IsValid)
             {
-                try
+                if (!ProductExists(product.ProductId))
                 {
-                    _context.Update(product);
-                    await _context.SaveChangesAsync();
+                    return NotFound(new { status = 404, message = "Product Not Found" });
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductExists(product.ProductId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                _context.Update(product);
+                await _context.SaveChangesAsync();
             }
-            return View(product);
+            return Ok(new { status = 200, message = "Product updated successfully" }); ;
         }
 
-        // GET: Products/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+
+        // DELETE: Product/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProductById(int id)
         {
-            if (id == null)
+            if (!ProductExists(id))
             {
-                return NotFound();
+                return NotFound(new { status = 404, message = "Product Not Found" });
             }
-
-            var product = await _context.Products
-                .FirstOrDefaultAsync(m => m.ProductId == id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            return View(product);
-        }
-
-        // POST: Products/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
             var product = await _context.Products.FindAsync(id);
+
             if (product != null)
             {
                 _context.Products.Remove(product);
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return Ok(new { status = 200, message = "Product deleted successfully" }); ;
         }
 
         private bool ProductExists(int id)
