@@ -27,6 +27,7 @@ namespace Assign03.Controllers
             return await _context.Comments.ToListAsync();
         }
 
+
         // GET: Comments/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Comment>> GetCommentById(int? id)
@@ -49,10 +50,8 @@ namespace Assign03.Controllers
             {
                 return BadRequest(ModelState);
             }
-
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
-
             return CreatedAtAction(nameof(GetCommentById), new { id = comment.CommentId }, new { status = 201, message = "Comment saved successfully" });
         }
 

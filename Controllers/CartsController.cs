@@ -87,7 +87,6 @@ namespace Assign03.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteItemFromCartById(int id)
         {
-
             if (!CartExists(id))
             {
                 return NotFound(new { status = 404, message = "Item in Cart Not Found" });

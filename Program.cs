@@ -1,5 +1,6 @@
 using Assign03.Data;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,3 +37,12 @@ app.UseEndpoints(endpoints =>
 });
 
 app.Run();
+
+/*Scaffold - DbContext "Server=JUPIN\PRAGNESHSQL19;Database=WebAssign3;Integrated Security=True;" +
+    "Connect Timeout=30;Packet Size=4096;MultipleActiveResultSets=True;Encrypt=False;" 
+    Microsoft.EntityFrameworkCore.SqlServer - OutputDir Data*/
+
+/*dotnet tool install --global dotnet-aspnet-codegenerator
+dotnet tool install --global dotnet-ef --version 8.*
+dotnet ef migrations add InitialCreate
+dotnet ef database update*/
