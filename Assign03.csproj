@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Database of sql server\" />
     <Folder Include="Views\Home\" />
   </ItemGroup>
 
