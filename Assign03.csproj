@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Database of sql server\" />
+    <Folder Include="DatabaseSchema\" />
     <Folder Include="Views\Home\" />
   </ItemGroup>
 
